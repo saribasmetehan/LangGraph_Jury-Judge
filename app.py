@@ -5,7 +5,7 @@ st.set_page_config(page_title="AI Jury & Judge", page_icon="⚖️", layout="wid
 
 st.title("⚖️ AI Jury & Judge Tartışma Sistemi")
 st.markdown("""
-Bu sistemde 3 farklı yapay zeka jürisi, sorduğunuz soruyu kendi perspektiflerinden (Resmi/Tarihi, Sosyal Medya/Kamuoyu, Akademik/Bilimsel) ele alır. İnternette arama yaparak 3 tur boyunca kendi aralarında tartışırlar. Son olarak Baş Yargıç devreye girerek tüm argümanları sentezleyip nihai kararı verir ve jürileri puanlar.
+Bu sistemde 3 farklı yapay zeka Jury Agent'ı, sorduğunuz soruyu kendi perspektiflerinden (Resmi/Tarihi, Sosyal Medya/Kamuoyu, Akademik/Bilimsel) ele alır. İnternette arama yaparak 3 tur boyunca kendi aralarında tartışırlar. Son olarak Judge Agent devreye girerek tüm argümanları sentezleyip nihai kararı verir ve Jury Agent'ları puanlar.
 """)
 
 user_query = st.text_input("Tartışılacak konuyu veya soruyu girin:", placeholder="Örn: Evden çalışma verimliliği düşürüyor mu, artırıyor mu?")
@@ -21,7 +21,7 @@ if st.button("Tartışmayı Başlat", type="primary"):
         }
 
         status_text = st.empty()
-        status_text.info("Tartışma başladı! Jüriler araştırıyor...")
+        status_text.info("Tartışma başladı! Jury Agent'lar araştırıyor...")
 
         final_state = {
             "user_message": user_query,
@@ -38,7 +38,7 @@ if st.button("Tartışmayı Başlat", type="primary"):
                         if not isinstance(state_update, dict):
                             continue
                             
-                        # Herhangi bir jüri response'u geldiğinde
+                        # Herhangi bir Jury Agent response'u geldiğinde
                         if "agent_history" in state_update and state_update["agent_history"]:
                             new_history = state_update["agent_history"]
                             final_state["agent_history"].extend(new_history)
@@ -50,10 +50,10 @@ if st.button("Tartışmayı Başlat", type="primary"):
                             final_state["current_round"] = state_update["current_round"]
                             st.write(f"🔄 **Tur {final_state['current_round']} tamamlandı**, diğer tura/karara geçiliyor...")
                             
-                        # Yargıç konuştuğunda
+                        # Judge Agent konuştuğunda
                         if "judge_output" in state_update and state_update["judge_output"]:
                             final_state["judge_output"] = state_update["judge_output"]
-                            st.write("⚖️ **Yargıç** nihai kararını verdi!")
+                            st.write("⚖️ **Judge Agent** nihai kararını verdi!")
                             
                 status.update(label="Tüm Ajan İşlemleri Tamamlandı!", state="complete", expanded=False)
                 
@@ -71,7 +71,7 @@ if st.button("Tartışmayı Başlat", type="primary"):
             st.divider()
 
             # --- 1. TARTIŞMA GEÇMİŞİNİ GÖSTER ---
-            st.header("🗣️ Jüri Tartışma Kayıtları (3 Tur)")
+            st.header("🗣️ Jury Agent Tartışma Kayıtları (3 Tur)")
             history = final_state.get("agent_history", [])
             
             rounds = {}
@@ -82,7 +82,7 @@ if st.button("Tartışmayı Başlat", type="primary"):
                 rounds[r].append(item)
 
             for r in sorted(rounds.keys()):
-                with st.expander(f"Tur {r + 1} - Jürilerin Argümanları", expanded=True):
+                with st.expander(f"Tur {r + 1} - Jury Agent'ların Argümanları", expanded=True):
                     for msg in rounds[r]:
                         st.markdown(f"#### {msg.get('agent_name', 'Bilinmeyen Ajan')}")
                         st.markdown(f"**Tez:** {msg.get('thesis', '')}")
@@ -101,8 +101,8 @@ if st.button("Tartışmayı Başlat", type="primary"):
 
             st.divider()
 
-            # --- 2. YARGIÇ KARARINI GÖSTER ---
-            st.header("⚖️ Baş Yargıcın Nihai Kararı")
+            # --- 2. JUDGE AGENT KARARINI GÖSTER ---
+            st.header("⚖️ Judge Agent'ın Nihai Kararı")
             judge = final_state.get("judge_output", {})
             
             if judge:
@@ -111,24 +111,24 @@ if st.button("Tartışmayı Başlat", type="primary"):
                 
                 col1, col2 = st.columns(2)
                 with col1:
-                    st.subheader("Yargıcın Gerekçesi")
+                    st.subheader("Judge Agent'ın Gerekçesi")
                     st.info(judge.get("reasoning", ""))
                 with col2:
-                    st.subheader("Yargıcın Tezi Sentezi")
+                    st.subheader("Judge Agent'ın Tezi Sentezi")
                     st.warning(judge.get("thesis", ""))
 
                 st.divider()
                 
-                st.subheader("📚 Hakemin Seçtiği En İyi Kaynaklar")
+                st.subheader("📚 Judge Agent'ın Seçtiği En İyi Kaynaklar")
                 judge_sources = judge.get("sources", [])
                 if judge_sources:
                     for source in judge_sources:
                         st.markdown(f"- {source}")
                 else:
-                    st.info("Yargıç özel bir kaynak listesi sunmadı.")
+                    st.info("Judge Agent özel bir kaynak listesi sunmadı.")
 
                 st.divider()
-                st.subheader("🏆 Jürilerin Performans Puanlaması")
+                st.subheader("🏆 Jury Agent'ların Performans Puanlaması")
                 
                 # 3 Kolonlu Çok Şık Metric Gösterimi
                 score_col1, score_col2, score_col3 = st.columns(3)
@@ -148,7 +148,7 @@ if st.button("Tartışmayı Başlat", type="primary"):
                     st.metric(label="🔬 Jury 3 (Akademik)", value=f"{j3_score} / 10")
                     st.warning(judge.get("jury_3_reason", "Puanlama yapılmadı."))
             else:
-                st.warning("Yargıç bir çıktı üretemeden tartışma sonlandı.")
+                st.warning("Judge Agent bir çıktı üretemeden tartışma sonlandı.")
 
     else:
         st.warning("Lütfen önce bir konu girin.")
