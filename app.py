@@ -32,25 +32,22 @@ if st.button("Tartışmayı Başlat", type="primary"):
 
         with st.status("Ajanların Çalışma Süreci...", expanded=True) as status:
             try:
-                # stream_mode="updates" ile state_update leri yakalayıp final state e manuel ekliyoruz
+
                 for event in graph.stream(initial_state, stream_mode="updates"):
                     for node_name, state_update in event.items():
                         if not isinstance(state_update, dict):
                             continue
                             
-                        # Herhangi bir Jury Agent response'u geldiğinde
                         if "agent_history" in state_update and state_update["agent_history"]:
                             new_history = state_update["agent_history"]
                             final_state["agent_history"].extend(new_history)
                             for msg in new_history:
                                 st.write(f"🧑‍⚖️ **{msg.get('agent_name', 'Bilinmeyen Ajan')}** tezini sundu! (Tur {final_state['current_round'] + 1})")
                         
-                        # Tur bittiğinde
                         if "current_round" in state_update:
                             final_state["current_round"] = state_update["current_round"]
                             st.write(f"🔄 **Tur {final_state['current_round']} tamamlandı**, diğer tura/karara geçiliyor...")
                             
-                        # Judge Agent konuştuğunda
                         if "judge_output" in state_update and state_update["judge_output"]:
                             final_state["judge_output"] = state_update["judge_output"]
                             st.write("⚖️ **Judge Agent** nihai kararını verdi!")
@@ -63,14 +60,12 @@ if st.button("Tartışmayı Başlat", type="primary"):
                     st.error("🚨 OpenAI API Bakiye Hatası! Krediniz bitmiş. Lütfen platform.openai.com üzerinden bakiye yükleyin.")
                 else:
                     st.error(f"Beklenmeyen Hata: {str(e)}")
-                st.stop() # Hata varsa aşağıya (sonuçları göstermeye) inme.
+                st.stop() 
 
-        # Hata olmadıysa Final State içindeki sonuçları ekrana basıyoruz
         if final_state:
             status_text.success("Tartışma tamamlandı ve karar verildi!")
             st.divider()
 
-            # --- 1. TARTIŞMA GEÇMİŞİNİ GÖSTER ---
             st.header("🗣️ Jury Agent Tartışma Kayıtları (3 Tur)")
             history = final_state.get("agent_history", [])
             
@@ -101,7 +96,6 @@ if st.button("Tartışmayı Başlat", type="primary"):
 
             st.divider()
 
-            # --- 2. JUDGE AGENT KARARINI GÖSTER ---
             st.header("⚖️ Judge Agent'ın Nihai Kararı")
             judge = final_state.get("judge_output", {})
             
@@ -130,7 +124,6 @@ if st.button("Tartışmayı Başlat", type="primary"):
                 st.divider()
                 st.subheader("🏆 Jury Agent'ların Performans Puanlaması")
                 
-                # 3 Kolonlu Çok Şık Metric Gösterimi
                 score_col1, score_col2, score_col3 = st.columns(3)
                 
                 with score_col1:
