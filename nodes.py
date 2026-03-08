@@ -60,7 +60,6 @@ def judge_node(state: State) -> dict:
 
 
 def dispatch_node(state: State) -> dict:
-    """Hiçbir şey yapmaz, sadece paralel dağıtım noktası."""
     return {}
 
 
