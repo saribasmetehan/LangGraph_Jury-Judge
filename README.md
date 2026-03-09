@@ -60,5 +60,7 @@ uv run streamlit run app.py
 
 Tartışma başladığında Streamlit sayesinde ajanların hangi turda çalıştığını, ürettikleri **Tez** ve **Karşıt Görüş** argümanlarını eşzamanlı izleyebilirsiniz. Süreç bittiğinde Yargıcın 3 ayrı renk kodlanmış jüri metrik skorlamasını görüntüleyebilirsiniz.
 
+<video src="langgraph_v2.mp4" controls width="100%"></video>
+
 ---
 _Yapay zekanın sınırlarını LangGraph ile test ettiğimiz bu projeyle ilgili daha fazla düşünceniz veya merak ettiğiniz detaylar varsa makaleme göz atmayı unutmayın!_
